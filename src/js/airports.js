@@ -30,6 +30,25 @@ define(function ()
         ));
     }
 
+    function clearMap()
+    {
+        $("#map-container").html("");
+    }
+
+    function updateMap(origin, destination)
+    {
+        var query = "origin=" + origin + "&destination=" + destination;
+
+        $("#map-container").html(' \
+            <iframe \
+                width="100%" \
+                height="500px" \
+                frameborder="0" style="border:0" \
+                src="https://www.google.com/maps/embed/v1/directions?key=AIzaSyB-nTCsOb7rFXj-97PHNbRopLpa2uvH6S0&' + query + '"> \
+            </iframe> \
+        ');
+    }
+
     function updateDistance()
     {
         var data1 = $("#airport-desc-1").data("data");
@@ -37,10 +56,15 @@ define(function ()
 
         if (data1 && !data1.error && data2 && !data2.error) {
             var km = greatCircleDistance(data1.lat, data1.lng, data2.lat, data2.lng);
+
             $("#distance-1").html("<strong>Distance:</strong> " + round(km, 2) + " km, " + round(km * nmiToKm, 2) + " nmi");
+
+            updateMap(data1.code + " airport", data2.code + " airport");
         }
-        else
+        else {
             $("#distance-1").html("");
+            clearMap();
+        }
     }
 
     function clearAirportDescription(description)
@@ -159,7 +183,7 @@ define(function ()
                             </div> \
                         </div> \
                         <div class="col-xs-12 col-md-7"> \
-                            <div id="mapContainer"> \
+                            <div id="map-container"> \
                             </div> \
                         </div> \
                     </div> \
