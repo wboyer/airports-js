@@ -1,23 +1,31 @@
 #demo-container {
-  padding: 10px;
-  position: relative;
-  height: 800px;
+  padding: 15px;
+  height: 60em;
   overflow: auto;
+  color: black;
+
+  input {
+    font-size: 18px;
+  }
+
+  @media (max-width: 767px) {
+    font-size: 12px;
+  }
 }
 
 .airport-desc {
   padding: 10px 10px;
-  height: 5em;
+  height: 6em;
   font-style: italic;
 }
 
 .distance {
-  padding: 0 10px;
+  padding: 10px;
   font-style: italic;
 }
 
 .tt-dropdown-menu {
-  width: 400px;
+  width: 300px;
   margin-top: 6px;
   padding: 8px 0;
   background-color: #fff;
@@ -30,10 +38,10 @@
   padding: 3px 5px;
   font-size: 12px;
   line-height: 16px;
+  overflow: auto;
 }
 
 .tt-suggestion.tt-cursor {
-  color: #fff;
   background-color: #ccc;
 }
 
@@ -41,8 +49,13 @@
   margin: 0;
 }
 
+.suggestion-main {
+  display: inline-block;
+}
+
 .suggestion-sub {
   float: right;
+  display: inline-block;
   font-size: 10px;
 }
 

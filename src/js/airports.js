@@ -43,46 +43,65 @@ define(function ()
             $("#distance-1").html("");
     }
 
+    function clearAirportDescription(description)
+    {
+        description.removeData("data");
+        description.html("");
+
+        updateDistance();
+    }
+
     function updateAirportDescription(description, airportData)
     {
         if (airportData) {
+            if (airportData.error)
+                clearAirportDescription(description);
+
             description.data("data", airportData);
 
-            description.html("<strong>" + airportData.code + "</strong>" + " - " + airportData.name + "<br>" +
-                airportData.city + ", " + airportData.country +
-                " (" + round(airportData.lat, 2) + ", " + round(airportData.lng, 2) + ")");
-        }
-        else {
-            description.removeData("data");
-            description.html("");
-        }
+            if (!airportData.error)
+                description.html("<strong>" + airportData.code + "</strong>" + " - " + airportData.name + "<br>" +
+                                    airportData.city + ", " + airportData.country +
+                                    " (" + round(airportData.lat, 2) + ", " + round(airportData.lng, 2) + ")");
 
-        updateDistance();
+            updateDistance();
+        }
+        else
+            description.html("loading...");
     }
 
     return {
         lookupAirport: function (input)
         {
             input = $(input);
-            var inputCode = input.val().toUpperCase();
+            var code = input.val().toUpperCase();
 
-            var currentDescription = $("#" + input.attr("id").replace("input", "desc"));
+            var description = $("#" + input.attr("id").replace("input", "desc"));
+            var data = description.data("data");
 
-            if (currentDescription.html().indexOf(inputCode) === 0)
+            if (data) {
+                var currentCode = data.code;
+                if (code == currentCode)
+                    return;
+            }
+
+            clearAirportDescription(description);
+
+            if (code.length != 3)
                 return;
 
-            updateAirportDescription(currentDescription, null);
-
-            if (inputCode.length != 3)
-                return;
-
-            updateAirportDescription(currentDescription, null);
+            updateAirportDescription(description);
 
             $.ajax({
-                url: "/api/airports/" + inputCode
-            }).done(function (airportData)
+                url: "/api/airports/" + code
+            })
+            .done(function (airportData)
             {
-                updateAirportDescription(currentDescription, airportData);
+                updateAirportDescription(description, airportData);
+            })
+            .fail(function ()
+            {
+                updateAirportDescription(description, { "code": code, "error": true });
             });
         },
 
@@ -93,13 +112,26 @@ define(function ()
             }).done(function (results)
             {
                 if (results)
-                    callback(results.slice(0, 30));
+                    callback(results.slice(0, 30));  // TODO: Result set should be limited server-side.
             });
         },
 
         renderSuggestion: function (suggestion)
         {
-            return '<div class="suggestion"><span class="suggestion-main">' + suggestion.code + ' - ' + suggestion.name + '</span><span class="suggestion-sub">' + suggestion.city + ', ' + suggestion.country + '</span></div>';
+            var main = suggestion.code;
+            if (suggestion.name)
+                main += ' - ' + suggestion.name;
+
+            var sub = "";
+            if (suggestion.city)
+                sub += suggestion.city;
+            if (suggestion.country) {
+                if (sub.length)
+                    sub += ' - ';
+                sub += suggestion.country;
+            }
+
+            return '<div class="suggestion"><div class="suggestion-main">' + main + '</div><div class="suggestion-sub">' + sub + '</div></div>';
         },
 
         renderNoSuggestions: function ()
@@ -159,6 +191,16 @@ define(function ()
             $(".airport-input").bind("typeahead:selected change blur", function ()
             {
                 self.lookupAirport(this);
+            });
+
+            $(".airport-input").bind("keyup", function (event)
+            {
+                self.lookupAirport(this);
+
+                if (event.which == 13)
+                    $(".airport-input").typeahead('close');
+
+                return true;
             });
         }
     };
