@@ -35,7 +35,7 @@ define(function ()
         var data1 = $("#airport-desc-1").data("data");
         var data2 = $("#airport-desc-2").data("data");
 
-        if (data1 && data2) {
+        if (data1 && !data1.error && data2 && !data2.error) {
             var km = greatCircleDistance(data1.lat, data1.lng, data2.lat, data2.lng);
             $("#distance-1").html("<strong>Distance:</strong> " + round(km, 2) + " km, " + round(km * nmiToKm, 2) + " nmi");
         }
