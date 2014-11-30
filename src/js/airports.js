@@ -1,3 +1,6 @@
+// Client-side methods for search and retrieval of airport data hosted at /api/airports,
+// and for rendering a simple UI that demonstrates their use.
+
 /*jshint multistr: true */
 
 define(function ()
